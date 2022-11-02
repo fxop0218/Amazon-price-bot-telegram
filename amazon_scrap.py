@@ -1,4 +1,5 @@
 import requests
+from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 
 request = requests.get('https://www.amazon.es/UTF8&pd_rd_w=O0PtF&-id=amzn1.sym.35f0d05b-e18e-4de5-8713-ab11f97bda59&pf_rd_p=35f0d05b-e18e-4de5-8713-ab11f97bda59&pf_rd_r=ZEY8BHATBN6FVRFJ6EWZ&pd_rd_wg=maulu&pd_rd_r=df0b65f5-b2de-4ec9-980b-a88a3544e899&ref_=pd_gw_ci_mcx_mi')
@@ -8,23 +9,23 @@ request2 = requests.get(URL)
 print(f"Correct: {request2}")
 
 
-
+# Check if the page exists
+# If !404 == exists else don't exstists
 def check_existence(url):
     result = requests.get(url)
     if result.status_code != 404:
         return True
     return False
 
-def get_product(url):
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, "html.parser")
-    title = soup.find("span", id="productTitle")
-    price = soup.find("span", class_="a-price-whole")
-    strs = soup.find("span", class_="a-icon-alt")
-    print(f"Hola: {strs.string}")
-    strs = strs.string
-    strs = strs.replace("de 5 estrellas", "")
-    print(strs)
-    return True
-
-som_val = get_product(URL)
+# Find features form amazon product page.
+def scrap_amz_product(url):
+    print(url)
+    session = HTMLSession()
+    response = session.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    title = soup.find(id="productTitle").text
+    price = soup.find(class_="a-price-whole").text
+    strs = soup.find(class_="a-icon-alt").text
+    strs = strs.replace("de 5 estrellas", "") # Delete the first part of the stars text
+    print(f"title: {title} price: {price} stars: {strs}")
+    return title

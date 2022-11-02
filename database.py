@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from amazon_scrap import scrap_amz_product
 import os
 
 DATABASE = "amazonBot"
@@ -82,9 +83,7 @@ def add_user_products(user, product_url):
         user_collection.update({"_id": user}, {"$push": {"products": product_url}})
     else:
         # Call scraper to get the data
-        price = ""
-        stars = ""
-        name = ""
+        title, price, strs = get_product(product_url)
         last_update = ""
         result = add_product(product_url, name, price, stars, last_update)
         if result:
@@ -107,5 +106,3 @@ def remove_user_product(user, product_url):
 
 #add_product("url", "name", 10, 3, 1)
 #r = get_product("url")
-usr2 = user_collection.find_one({"url": 21})
-print(usr2["url"])
