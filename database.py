@@ -46,7 +46,7 @@ def user_exists(user):
     except Exception:
         return False
 def add_user(user):
-    user = {"_id": user, "products": [""]}
+    user = {"_id": user}
     user_collection.insert_one(user)
     return user
 
@@ -60,7 +60,8 @@ def get_user(user):
 
 def get_user_products(user):
     try:
-        products = user_collection.find_one({"_id": user}, {"products": 1})
+        products = user_collection.find_one({"_id": user}, {"_id": 0, "products": 1})
+        #print(products)
         return products
     except Exception:
         print("Error")
@@ -88,13 +89,13 @@ def add_user_products(user, product_url):
     else:
         # Call scraper to get the data
         product = scrap_amz_product(product_url)
-
         last_update = "today"
         prod_ex = product_exists(product_url)
         if not prod_ex:
             add_product(product_url, product["title"], product["price"], product["strs"], last_update)
             print("Object created")
         try:
+            # TODO comporbate if this user have the product 
             user_collection.update_one({"_id": user}, {"$push": {"products" : product_url}}, upsert = True)
         except Exception:
             print("User error")
