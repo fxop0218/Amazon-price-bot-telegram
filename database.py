@@ -21,7 +21,7 @@ def user_command(user):
 
 def add_product(url, name, price, stars, last_update):
     try:
-        product = {"_id": url, "name": name, "price": [price], "stars": stars, "last_update": last_update}
+        product = {"_id": url, "name": name, "first_price": price, "last_price": price, "stars": stars, "last_update": last_update}
         products_collection.insert_one(product)
         return True
     except Exception:
@@ -36,15 +36,18 @@ def get_product(url):
     except Exception:
         print("Error")
     return "Error"
+
 def user_exists(user):
     try:
-        user_collection.find_one({"_id": user})
+        user2 = user_collection.find_one({"_id": user})
+        if user2 is None:
+            return False
         return True
     except Exception:
         return False
 def add_user(user):
-    user = {"_id": user}
-    user_collection.insert(user)
+    user = {"_id": user, "products": [""]}
+    user_collection.insert_one(user)
     return user
 
 def get_user(user):
@@ -76,6 +79,7 @@ def add_user_products(user, product_url):
         product_url.find_one({"_id": product_url})
         product_ex = True
     except Exception:
+        product_ex = False
         print("Creating the product")
 
     # Check if the product exists
@@ -83,26 +87,36 @@ def add_user_products(user, product_url):
         user_collection.update({"_id": user}, {"$push": {"products": product_url}})
     else:
         # Call scraper to get the data
-        title, price, strs = get_product(product_url)
-        last_update = ""
-        result = add_product(product_url, name, price, stars, last_update)
-        if result:
+        product = scrap_amz_product(product_url)
+
+        last_update = "today"
+        prod_ex = product_exists(product_url)
+        if not prod_ex:
+            add_product(product_url, product["title"], product["price"], product["strs"], last_update)
             print("Object created")
-            try:
-                user_collection.update({"_id": user}, {"$push": {"products" : product_url}})
-            except Exception:
-                print("User error")
-                return False
-        else:
-            pritn("Error to create the product")
+        try:
+            user_collection.update_one({"_id": user}, {"$push": {"products" : product_url}}, upsert = True)
+        except Exception:
+            print("User error")
+            return False
     return True
 
 def remove_user_product(user, product_url):
     try:
-        user_collection.update({"_id": user}, {"$pull": product_url})
+        user_collection.findOneAndUpdate({"_id": user}, {"$pull": product_url})
         return True
     except Exception:
         return False
+
+def product_exists(product):
+    try:
+        product_ob = products_collection.find({"_id": product})
+        if product_ob is None:
+            return False
+        return True
+    except Exception:
+        return None
+
 
 #add_product("url", "name", 10, 3, 1)
 #r = get_product("url")

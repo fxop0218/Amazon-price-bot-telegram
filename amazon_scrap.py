@@ -21,11 +21,12 @@ def check_existence(url):
 def scrap_amz_product(url):
     print(url)
     session = HTMLSession()
+    product_dict = dict()
     response = session.get(url)
     soup = BeautifulSoup(response.content, "html.parser")
-    title = soup.find(id="productTitle").text
-    price = soup.find(class_="a-price-whole").text
+    product_dict["title"] = soup.find(id="productTitle").text
+    product_dict["price"] = soup.find(class_="a-price-whole").text
     strs = soup.find(class_="a-icon-alt").text
-    strs = strs.replace("de 5 estrellas", "") # Delete the first part of the stars text
-    print(f"title: {title} price: {price} stars: {strs}")
-    return title
+    product_dict["strs"] = strs.replace("de 5 estrellas", "") # Delete the first part of the stars text
+    print(f"title: {product_dict['title']} price: {product_dict['price']} stars: {product_dict['strs']}")
+    return product_dict
