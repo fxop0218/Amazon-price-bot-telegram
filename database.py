@@ -23,6 +23,7 @@ def add_product(url, name, price, stars, last_update):
     try:
         product = {"_id": url, "name": name, "first_price": price, "last_price": price, "stars": stars, "last_update": last_update}
         products_collection.insert_one(product)
+        print(f"Product added with link {url}")
         return True
     except Exception:
         print("Error")
@@ -30,11 +31,11 @@ def add_product(url, name, price, stars, last_update):
 
 def get_product(url):
     try:
-        product = products_collection.find({"_id": url})
-        print(product[0])
+        product = products_collection.find_one({"_id": url})
+        print(f"Product: {product}")
         return product
-    except Exception:
-        print("Error")
+    except Exception as e:
+        print(f"Error to get product \n{e}")
     return "Error"
 
 def user_exists(user):
@@ -62,7 +63,7 @@ def get_user_products(user):
     try:
         products = user_collection.find_one({"_id": user}, {"_id": 0, "products": 1})
         #print(products)
-        return products
+        return products["products"]
     except Exception:
         print("Error")
     return "Error"
@@ -77,29 +78,27 @@ def add_user_products(user, product_url):
 
     # if don't find the product
     try:
-        product_url.find_one({"_id": product_url})
-        product_ex = True
+        prod_ex = product_exists(product_url)
     except Exception:
-        product_ex = False
+        prod_ex = False
         print("Creating the product")
 
+    print(prod_ex)
     # Check if the product exists
-    if product_ex:
-        user_collection.update({"_id": user}, {"$push": {"products": product_url}})
+    if prod_ex:
+        user_collection.update_one({"_id": user}, {"$push": {"products": product_url}})
     else:
         # Call scraper to get the data
         product = scrap_amz_product(product_url)
         last_update = "today"
-        prod_ex = product_exists(product_url)
-        if not prod_ex:
-            add_product(product_url, product["title"], product["price"], product["strs"], last_update)
-            print("Object created")
-        try:
-            # TODO comporbate if this user have the product 
-            user_collection.update_one({"_id": user}, {"$push": {"products" : product_url}}, upsert = True)
-        except Exception:
-            print("User error")
-            return False
+
+        add_product(product_url, product["title"], product["price"], product["strs"], last_update)
+        print("Object created")
+
+        # TODO comporbate if this user have the product
+        user_collection.update_one({"_id": user}, {"$push": {"products" : product_url}}, upsert = True)
+        print("User error")
+        return False
     return True
 
 def remove_user_product(user, product_url):
@@ -109,9 +108,51 @@ def remove_user_product(user, product_url):
     except Exception:
         return False
 
+def get_all_products(user):
+    text = ""
+    try:
+        product = get_user_products(user)
+        if len(product) <= 0:
+            return "No products added"
+        for p in range(0, len(product)):
+            print(text)
+            text = text + f"\n Product id: {p} product link: {product[p]}"
+    except Exception:
+        print("Exception")
+    return text
+
+def get_all_products_name(user):
+    text = ""
+    try:
+        user_products = get_user_products(user)
+        print(len(user_products))
+        if len(user_products) <=0:
+             return "No products added"
+        for p in range(0, len(user_products)):
+            id = user_products[p]
+            print(f"Id: {id}")
+            product = get_product(id)
+            print(product)
+            text = text + f"ID: {p} Name: {product['name']}\n"
+            print(text)
+    except Exception as e:
+        print(e)
+    return text
+
+def get_one_product(user, id):
+    try:
+        products = get_user_products(user)
+        product = get_product(products[id])
+        return product
+    except Exception:
+        return "Error"
+
+
+
 def product_exists(product):
     try:
-        product_ob = products_collection.find({"_id": product})
+        product_ob = products_collection.find_one({"_id": product})
+        print(product_ob)
         if product_ob is None:
             return False
         return True
