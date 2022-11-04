@@ -69,7 +69,7 @@ def get_user_products(user):
     return "Error"
 
 def add_user_products(user, product_url):
-    product_ex = False
+    already_have = False
     # Check if the user exists
     user_ex = user_exists(user)
     # Add the user to db if the user don't exists
@@ -85,20 +85,27 @@ def add_user_products(user, product_url):
 
     print(prod_ex)
     # Check if the product exists
-    if prod_ex:
-        user_collection.update_one({"_id": user}, {"$push": {"products": product_url}})
-    else:
+    if not prod_ex:
         # Call scraper to get the data
         product = scrap_amz_product(product_url)
         last_update = "today"
 
         add_product(product_url, product["title"], product["price"], product["strs"], last_update)
         print("Object created")
+        already_have = False
+    else:
+        usr_products = get_user_products(user)
+        for usr_prod in usr_products:
+            if usr_prod == product_url:
+                already_have = True
 
-        # TODO comporbate if this user have the product
+    # TODO comporbate if this user have the product
+    print(already_have)
+    if not already_have:
         user_collection.update_one({"_id": user}, {"$push": {"products" : product_url}}, upsert = True)
-        print("User error")
-        return False
+        print("Object added to the user")
+        return True
+    print(f"Also have the product")
     return True
 
 def remove_user_product(user, product_url):
