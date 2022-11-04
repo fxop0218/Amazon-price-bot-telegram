@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from amazon_scrap import check_existence
 from database import add_user_products, get_one_product, get_all_products, get_product, get_user, get_user_products, product_exists, get_all_products_name
 import os
+import operator
 
 load_dotenv()
 
@@ -52,17 +53,17 @@ def dev(update: Update, context: CallbackContext):
     user_id = update.message.from_user.username
     update.message.reply_text(f"User id: {user_id}")
 
-# TODO add -l to show the link or not
+# TODO add sl to show the link or not
 def show_products(update: Update, context: CallbackContext):
     user_id = update.message.from_user.username
-    command = "/all_products"
+    command = "/all_products "
     show_link = update.message.text
     print(len(show_link))
 
     if len(show_link) > len(command):
         show_link = update.message.text.replace(command, "")
         print(show_link)
-    if show_link == "sl":
+    if operator.contains(show_link, "sl"):
         objects = get_all_products(user_id)
         print(f"{objects}ssssssssss")
         update.message.reply_text(objects)
