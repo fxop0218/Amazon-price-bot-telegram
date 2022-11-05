@@ -80,7 +80,7 @@ def  show_one_product(update: Update, contex: CallbackContext):
         product = get_one_product(user_id, id)
         print(product)
         if product != "Error":
-            update.message.reply_text(f"Product: {product['name']}\nFirst price: {product['first_price']}€\nLast price: {product['last_price']}€\nPrice dif: {product['first_price'] - product['last_price']}\nStars: {product['stars']}\nLast update: {product['last_update']}")
+            update.message.reply_text(f"Product: {product['name']}\nFirst price: {product['first_price']}€\nLast price: {product['last_price']}€\nPrice dif: {float(product['first_price'].replace(',','.')) - float(product['last_price'].replace(',','.'))}\nStars: {product['stars']}\nLast update: {product['last_update'].strftime('%d/%m/%y')}")
         else:
             update.message.reply_text("Value out of bounds")
 

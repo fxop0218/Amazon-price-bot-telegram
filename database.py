@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from amazon_scrap import scrap_amz_product
+from datetime import datetime, date
 import os
 
 DATABASE = "amazonBot"
@@ -19,9 +20,10 @@ def user_command(user):
     print("Exemple code")
 
 
-def add_product(url, name, price, stars, last_update):
+def add_product(url, name, price, stars):
+    time = datetime.now()
     try:
-        product = {"_id": url, "name": name, "first_price": price, "last_price": price, "stars": stars, "last_update": last_update}
+        product = {"_id": url, "name": name, "first_price": price, "last_price": price, "stars": stars, "last_update": time}
         products_collection.insert_one(product)
         print(f"Product added with link {url}")
         return True
@@ -90,7 +92,7 @@ def add_user_products(user, product_url):
         product = scrap_amz_product(product_url)
         last_update = "today"
 
-        add_product(product_url, product["title"], product["price"], product["strs"], last_update)
+        add_product(product_url, product["title"], product["price"], product["strs"])
         print("Object created")
         already_have = False
     else:
@@ -108,7 +110,7 @@ def add_user_products(user, product_url):
     print(f"Also have the product")
     return True
 
-# TODO remove funcion don't pull nothing
+# Remove a product of the user with this ID
 def remove_user_product(user, product_id):
     try:
         products = get_user_products(user)
@@ -173,6 +175,15 @@ def product_exists(product):
     except Exception:
         return None
 
+def update_price():
+    all_proudcts = products_collection.find({})
+    # Call scrapper
+    time = datetime.now()
+    if len(all_proudcts) > 0:
+        for i in range(0, len(all_proudcts)):
+            prod_features = scrap_amz_product(all_proudcts[i]["_id"])
+            products_collection.update_one({"_id": all_proudcts[i]["_id"]}, {"last_price" : product["price"], "last_update": time})
+    print("Not products to update")
 
 #add_product("url", "name", 10, 3, 1)
 #r = get_product("url")
