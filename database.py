@@ -32,11 +32,11 @@ def add_product(url, name, price, stars, last_update):
 def get_product(url):
     try:
         product = products_collection.find_one({"_id": url})
-        print(f"Product: {product}")
+        print(f"Getted product: {product}")
         return product
     except Exception as e:
         print(f"Error to get product \n{e}")
-    return "Error"
+        return "Error"
 
 def user_exists(user):
     try:
@@ -148,18 +148,17 @@ def get_all_products_name(user):
 
 def get_one_product(user, id):
     try:
+        print(user)
         products = get_user_products(user)
-        pritn(f"Products: {products}")
-        product = get_product(products[id])
-        pritn(f"Products: {product}")
+        print(f"Products: {products}")
+        print(f"Product {id}, {products[int(id)]}")
+        product = get_product(products[int(id)])
 
         if product is None:
             return "Error"
         return product
     except Exception:
         return "Error"
-
-
 
 def product_exists(product):
     try:

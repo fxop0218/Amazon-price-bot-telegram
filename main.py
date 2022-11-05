@@ -79,13 +79,13 @@ def  show_one_product(update: Update, contex: CallbackContext):
     id = update.message.text.replace(command, "")
     user_id = update.message.from_user.username
     print(f"Number: {id}")
-
     if not id.isnumeric():
         update.message.reply_text(f"{id} is not a number")
     else:
         product = get_one_product(user_id, id)
+        print(product)
         if product != "Error":
-            update.message.reply_text(f"Product {product['name']}, first price: {product['first_price']}, last price: {product['last_price']}, stars: {product['stars']}, last update: {product['last_update']}")
+            update.message.reply_text(f"Product: {product['name']}\nFirst price: {product['first_price']}\nLast price: {product['last_price']}\nStars: {product['stars']}\nLast update: {product['last_update']}")
         else:
             update.message.reply_text("Value out of bounds")
 
