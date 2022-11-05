@@ -63,23 +63,27 @@ def show_products(update: Update, context: CallbackContext):
     if len(show_link) > len(command):
         show_link = update.message.text.replace(command, "")
         print(show_link)
+    # Show with link
     if operator.contains(show_link, "sl"):
         objects = get_all_products(user_id)
-        print(f"{objects}ssssssssss")
+        print(f"Sowing {len(objects)} with link")
         update.message.reply_text(objects)
+    # Show with name
     else:
         objects = get_all_products_name(user_id)
-        print(f"{objects}ssssssssss")
+        print(f"Sowing {len(objects)} with name")
         update.message.reply_text(objects)
 
-def show_one_product(update: Update, contex: CallbackContext):
-    command = "/product"
+def  show_one_product(update: Update, contex: CallbackContext):
+    command = "/product "
     id = update.message.text.replace(command, "")
+    user_id = update.message.from_user.username
+    print(f"Number: {id}")
 
-    if id.isnumeric():
+    if not id.isnumeric():
         update.message.reply_text(f"{id} is not a number")
     else:
-        product = get_one_product(user, id)
+        product = get_one_product(user_id, id)
         if product != "Error":
             update.message.reply_text(f"Product {product['name']}, first price: {product['first_price']}, last price: {product['last_price']}, stars: {product['stars']}, last update: {product['last_update']}")
         else:
@@ -92,7 +96,6 @@ def show_one_product(update: Update, contex: CallbackContext):
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('add_product', add_product))
 updater.dispatcher.add_handler(CommandHandler('dev', dev))
-updater.dispatcher.add_handler(CommandHandler('product',show_one_product))
 updater.dispatcher.add_handler(CommandHandler('all_products',show_products))
 updater.dispatcher.add_handler(CommandHandler('product',show_one_product))
 updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))

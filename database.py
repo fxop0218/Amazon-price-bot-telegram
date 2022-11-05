@@ -140,7 +140,7 @@ def get_all_products_name(user):
             print(f"Id: {id}")
             product = get_product(id)
             print(product)
-            text = text + f"ID: {p} Name: {product['name']}\n"
+            text = text + f"ID: {p} Name: {product['name'][:50]}...\n"
             print(text)
     except Exception as e:
         print(e)
@@ -149,7 +149,12 @@ def get_all_products_name(user):
 def get_one_product(user, id):
     try:
         products = get_user_products(user)
+        pritn(f"Products: {products}")
         product = get_product(products[id])
+        pritn(f"Products: {product}")
+
+        if product is None:
+            return "Error"
         return product
     except Exception:
         return "Error"
