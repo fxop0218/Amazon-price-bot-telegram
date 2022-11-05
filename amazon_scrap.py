@@ -29,5 +29,4 @@ def scrap_amz_product(url):
     product_dict["price"] = product_dict["price"] + soup.find(class_="a-price-fraction").text
     strs = soup.find(class_="a-icon-alt").text
     product_dict["strs"] = strs.replace("de 5 estrellas", "") # Delete the first part of the stars text
-    print(f"title: {product_dict['title']} price: {product_dict['price']} stars: {product_dict['strs']}")
     return product_dict

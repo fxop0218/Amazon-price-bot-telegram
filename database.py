@@ -34,6 +34,9 @@ def add_product(url, name, price, stars):
 def get_product(url):
     try:
         product = products_collection.find_one({"_id": url})
+        if product is None:
+            print("User without products")
+            return "Error"
         print(f"Getted product: {product}")
         return product
     except Exception as e:
@@ -64,7 +67,9 @@ def get_user(user):
 def get_user_products(user):
     try:
         products = user_collection.find_one({"_id": user}, {"_id": 0, "products": 1})
-        #print(products)
+        if products is None:
+            print("User without products")
+            return "Error"
         return products["products"]
     except Exception:
         print("Error")

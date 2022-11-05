@@ -65,13 +65,19 @@ def show_products(update: Update, context: CallbackContext):
     # Show with link
     if operator.contains(show_link, "sl"):
         objects = get_all_products(user_id)
-        print(f"Sowing {len(objects)} with link")
-        update.message.reply_text(objects)
+        if objects is None or objects == "":
+            update.message.reply_text("You don't have products in your list")
+        else:
+            print(f"Sowing {len(objects)} with link")
+            update.message.reply_text(objects)
     # Show with name
     else:
         objects = get_all_products_name(user_id)
-        print(f"Sowing {len(objects)} with name")
-        update.message.reply_text(objects)
+        if objects is None or objects == "":
+            update.message.reply_text("You don't have any object registred")
+        else:
+            print(f"Sowing {len(objects)} with name")
+            update.message.reply_text(objects)
 
 def  show_one_product(update: Update, contex: CallbackContext):
     command = "/product "
