@@ -8,7 +8,7 @@ from telegram.ext.filters import Filters
 from telegram import User
 from dotenv import load_dotenv
 from amazon_scrap import check_existence
-from database import add_user_products, get_one_product, get_all_products, get_product, get_user, get_user_products, product_exists, get_all_products_name
+from database import add_user_products, get_one_product, get_all_products, get_product, get_user, get_user_products, product_exists, get_all_products_name, remove_user_product
 import os
 import operator
 
@@ -42,11 +42,6 @@ def add_product(update: Update, context: CallbackContext):
     else:
         update.message.reply_text(f"Introduce link of the amazon product")
 
-def unknown(update: Update, context: CallbackContext):
-    update.message.reply_text(f"🧠't?")
-
-def unknown_msg(update: Update, context: CallbackContext):
-    update.message.reply_text(f"{update.message.text} isn't valid 🤷‍♂️")
 
 def dev(update: Update, context: CallbackContext):
     update.message.reply_text("Dev tools")
@@ -85,9 +80,35 @@ def  show_one_product(update: Update, contex: CallbackContext):
         product = get_one_product(user_id, id)
         print(product)
         if product != "Error":
-            update.message.reply_text(f"Product: {product['name']}\nFirst price: {product['first_price']}\nLast price: {product['last_price']}\nStars: {product['stars']}\nLast update: {product['last_update']}")
+            update.message.reply_text(f"Product: {product['name']}\nFirst price: {product['first_price']}€\nLast price: {product['last_price']}€\nPrice dif: {product['first_price'] - product['last_price']}\nStars: {product['stars']}\nLast update: {product['last_update']}")
         else:
             update.message.reply_text("Value out of bounds")
+
+
+def remove_product(update: Update, context: CallbackContext):
+    comand = "/remove "
+    user = update.message.from_user.username
+    product_id = update.message.text
+    if len(product_id) <=0:
+        update.message.reply_text("Put a index /remove [index]")
+    else:
+        product_id = product_id.replace(comand, "")
+        if product_id.isnumeric():
+            removed = remove_user_product(user, product_id)
+            if removed:
+                update.message.reply_text("Product successfully deleted")
+            else:
+                update.message.reply_text("Error to delete the product, or inexistent product")
+        else:
+            update.message.reply_text(f"{product_id} is not a number 🤨🤨🤨🤨")
+
+# Unknow comands and msg
+def unknown(update: Update, context: CallbackContext):
+                update.message.reply_text(f"🧠't?")
+
+def unknown_msg(update: Update, context: CallbackContext):
+    update.message.reply_text(f"{update.message.text} isn't valid 🤷‍♂️")
+
 
 
 ## print(os.getenv("TELEGRAM_API_KEY"))
@@ -96,6 +117,7 @@ def  show_one_product(update: Update, contex: CallbackContext):
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('add_product', add_product))
 updater.dispatcher.add_handler(CommandHandler('dev', dev))
+updater.dispatcher.add_handler(CommandHandler('remove', remove_product))
 updater.dispatcher.add_handler(CommandHandler('all_products',show_products))
 updater.dispatcher.add_handler(CommandHandler('product',show_one_product))
 updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))

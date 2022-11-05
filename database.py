@@ -108,9 +108,13 @@ def add_user_products(user, product_url):
     print(f"Also have the product")
     return True
 
-def remove_user_product(user, product_url):
+# TODO remove funcion don't pull nothing
+def remove_user_product(user, product_id):
     try:
-        user_collection.findOneAndUpdate({"_id": user}, {"$pull": product_url})
+        products = get_user_products(user)
+        print(f"Product id {product_id} to delete: { products[int(product_id)]}")
+        user_collection.update_one({"_id": user}, {"$pull": {"products": products[int(product_id)]}})
+        print("Deleted")
         return True
     except Exception:
         return False
@@ -122,7 +126,6 @@ def get_all_products(user):
         if len(product) <= 0:
             return "No products added"
         for p in range(0, len(product)):
-            print(text)
             text = text + f"\n Product id: {p} product link: {product[p]}"
     except Exception:
         print("Exception")
