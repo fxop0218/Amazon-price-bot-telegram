@@ -18,10 +18,14 @@ AMAZON_ES_LINK = "https://www.amazon.es/"
 
 updater = Updater(os.getenv("TELEGRAM_API_KEY"), use_context = True)
 
+def help(update: Update, context: CallbackContext):
+    update.message.reply_text(f'Amazon price traker🤖\n-----------------------\n/help to get help \n/add_product [link] Add the product in your list \n/all_products Show all your products use [/all_products sl] to show the products with the link\n/product [id] Informatión of the product with this id, to check the id use /all_products\n/remove [id] to remove the product')
+
 def start(update: Update, context: CallbackContext):
-    update.message.reply_text(f'Amazon price traker🤖\n-----------------------\n /start to get info \n /help to get help \n /add_product [link] Add the product in your list \n /all_products Show all your products\n /show_one_product [id] Get the product with this id')
+    update.message.reply_text(f"Wellcome to Amazon price traker telegram bot🤖\nThis bot is created by Francesc Oliveras 😁 to get more information of the creator use /info \n To start using the bot, use /hel to check all the commands.")
 
-
+def info(update: Update, context: CallbackContext):
+    update.message.reply_text(f"Linkedin📩: www.linkedin.com/in/francesc-oliveras-perez\nKaggle: https://www.kaggle.com/francescoliveras\nGitHub: https://github.com/fxop0218")
 def add_product(update: Update, context: CallbackContext):
     text = update.message.text
     command = "/add_product"
@@ -114,9 +118,10 @@ def unknown_msg(update: Update, context: CallbackContext):
 ## print(os.getenv("TELEGRAM_API_KEY"))
 #
 
-updater.dispatcher.add_handler(CommandHandler('start', start))
+updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('add_product', add_product))
 updater.dispatcher.add_handler(CommandHandler('dev', dev))
+updater.dispatcher.add_handler(CommandHandler('info', info))
 updater.dispatcher.add_handler(CommandHandler('remove', remove_product))
 updater.dispatcher.add_handler(CommandHandler('all_products',show_products))
 updater.dispatcher.add_handler(CommandHandler('product',show_one_product))
